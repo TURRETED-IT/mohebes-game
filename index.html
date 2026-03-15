@@ -3,75 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة النهائية</title>
+    <title>لعبة المحيبس - النسخة الاحترافية</title>
     <style>
         * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             text-align: center;
             background-color: #000;
             color: white;
             padding: 0; margin: 0;
             overflow: hidden;
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; width: 100vw;
         }
 
-        /* حاوية الشاشات (بداية، اختيار، لعبة) */
         .screen {
             position: fixed;
             top: 0; left: 0;
             width: 100vw; height: 100vh;
             display: none;
-            justify-content: center;
-            align-items: center;
             z-index: 100;
         }
 
-        #startScreen { display: flex; } /* الشاشة الأولى */
+        #startScreen { display: flex; }
 
         .img-container {
             position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%; height: 100%;
         }
 
-        /* جعل الصورة تملأ الصفحة بالكامل */
         .img-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: fill; /* تملأ الشاشة بالكامل */
+            width: 100%; height: 100%;
+            object-fit: fill;
             display: block;
         }
 
-        /* المناطق الشفافة للضغط (Hotspots) */
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         
-        /* زر ابدأ في شاشة البداية */
-        .start-btn { bottom: 8%; width: 30%; height: 15%; left: 35%; }
+        /* زر ابدأ */
+        .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         
-        /* أزرار طك وجيب في شاشة الاختيار */
+        /* أزرار الاختيار */
         .tak-btn { bottom: 10%; left: 10%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 10%; width: 35%; height: 15%; }
 
-        /* زر إعادة المحاولة في وسط الشاشة من الأسفل */
-        .retry-btn {
-            bottom: 5%;
-            left: 30%;
-            width: 40%;
-            height: 10%;
-            /* background: rgba(255, 0, 0, 0.3); /* امسح هذا التعليق لرؤية مكان الزر */
+        /* زر إعادة المحاولة (الوسط) */
+        .retry-btn { bottom: 5%; left: 32%; width: 36%; height: 10%; }
+
+        /* زر العودة للرئيسية (أعلى اليمين) */
+        .home-btn {
+            top: 20px; right: 20px;
+            padding: 10px 20px;
+            background: rgba(230, 126, 34, 0.9);
+            color: white; border: 2px solid #f1c40f;
+            border-radius: 10px; font-weight: bold;
+            z-index: 250; cursor: pointer;
         }
 
-        /* تصميم الأيادي في سطر واحد بالعرض */
+        /* تنسيق الأيادي - السطر العرضي */
         .hand-target {
             position: absolute;
-            width: 8%; /* عرض منطقة اليد */
-            height: 20%; /* طول منطقة اليد */
-            top: 45%; /* موقع الأيادي في المنتصف عرضياً */
+            width: 8.5%; height: 22%;
+            top: 44.5%; /* تعديل الارتفاع ليطابق مستوى الأيادي بالصورة */
             cursor: pointer;
             z-index: 120;
         }
@@ -80,7 +72,7 @@
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open.jpg');
-            background-size: 1100% 500%; /* توزيع لصورة open.jpg */
+            background-size: 1100% 100%; /* ضبط حجم الخلفية لتناسب اليد الواحدة */
             display: none;
             z-index: 121;
         }
@@ -94,27 +86,25 @@
             pointer-events: none;
         }
 
-        /* شريط المعلومات العلوي */
         .info-bar {
-            position: absolute;
-            top: 15px;
-            width: 100%;
-            z-index: 200;
-            pointer-events: none;
+            position: absolute; top: 15px; width: 100%;
+            z-index: 200; pointer-events: none;
         }
 
         .status-badge {
-            background: rgba(0,0,0,0.8);
-            padding: 10px 25px;
-            border-radius: 30px;
-            border: 1px solid #f1c40f;
+            background: rgba(0,0,0,0.85);
+            padding: 10px 30px;
+            border-radius: 50px;
+            border: 2px solid #f1c40f;
             display: inline-block;
-            font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
         }
     </style>
 </head>
 <body>
+
+    <div id="globalHomeBtn" class="hotspot home-btn" style="display:none;" onclick="goHome()">الرئيسية</div>
 
     <div id="startScreen" class="screen">
         <div class="img-container">
@@ -132,38 +122,57 @@
     </div>
 
     <div id="gameScreen" class="screen">
-        <div class="info-bar"><div class="badge status-badge" id="statusText">اختر وضع اللعب</div></div>
+        <div class="info-bar"><div class="status-badge" id="statusText">جاهز؟</div></div>
         <div class="img-container" id="gameArea">
-            <img src="close.jpg" id="mainBg">
-            <div class="hotspot retry-btn" onclick="location.reload()"></div>
+            <img src="close.jpg">
+            <div class="hotspot retry-btn" onclick="initGame()"></div>
         </div>
     </div>
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات الأيادي الـ 10 في سطر واحد بالعرض
+        // إحداثيات دقيقة للأيادي بالترتيب العرضي
         const coords = [
-            {l: '5%'}, {l: '14%'}, {l: '23%'}, {l: '33%'}, {l: '42%'},
-            {l: '52%'}, {l: '61%'}, {l: '70%'}, {l: '80%'}, {l: '89%'}
+            {l: '4%'}, {l: '13.5%'}, {l: '23%'}, {l: '32.5%'}, {l: '42%'},
+            {l: '51.5%'}, {l: '61%'}, {l: '70.5%'}, {l: '80%'}, {l: '89.5%'}
         ];
 
         function goToChoice() {
-            document.getElementById('startScreen').style.display = 'none';
+            hideAll();
             document.getElementById('chooseScreen').style.display = 'flex';
+            document.getElementById('globalHomeBtn').style.display = 'block';
         }
 
         function startGame(m) {
             gameMode = m;
-            document.getElementById('chooseScreen').style.display = 'none';
+            hideAll();
             document.getElementById('gameScreen').style.display = 'flex';
+            document.getElementById('globalHomeBtn').style.display = 'block';
             initGame();
+        }
+
+        function goHome() {
+            hideAll();
+            document.getElementById('startScreen').style.display = 'flex';
+            document.getElementById('globalHomeBtn').style.display = 'none';
+        }
+
+        function hideAll() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('chooseScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
         }
 
         function initGame() {
             const area = document.getElementById('gameArea');
+            // تنظيف الأيادي السابقة
+            area.querySelectorAll('.hand-target').forEach(el => el.remove());
+            
             ringPos = Math.floor(Math.random() * 10);
-            updateStatus(gameMode === 'tak' ? "طك الأيادي الفارغة" : "وين المحيبس؟ اطلب!");
+            isOver = false;
+            takTries = 8;
+            updateStatus(gameMode === 'tak' ? "وضع الطك: باقي 8 محاولات" : "وضع الجيب: وين المحيبس؟");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -172,8 +181,8 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // ضبط خلفية اليد المفتوحة لتناسب كل يد
-                open.style.backgroundPosition = `${(i * 11)}% 50%`;
+                // حساب الـ background position بدقة (100 / 9 = 11.11)
+                open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
                 overlay.className = 'emoji-overlay';
@@ -186,14 +195,14 @@
                     open.style.display = 'block';
 
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! لقيت المحيبس 🎉"); }
                         else { overlay.innerText = '❌'; updateStatus("خسرت! طاح المحيبس 😢"); }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("طاح! طكيت المحيبس 😢"); endGame(); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! هسه اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت إيدين! هسه جيب البات"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
@@ -206,7 +215,6 @@
         
         function endGame() { 
             isOver = true; 
-            // كشف مكان المحيبس إذا لم يفتح
             const views = document.querySelectorAll('.open-view');
             const overlays = document.querySelectorAll('.emoji-overlay');
             views[ringPos].style.display = 'block';
