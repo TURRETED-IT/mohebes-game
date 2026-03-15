@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة محيبس احترافية</title>
+    <title>لعبة المحيبس الاحترافية</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
-            background-color: #000;
+            background-color: #1a1a1a;
             color: white;
             padding: 0;
             margin: 0;
@@ -29,27 +29,24 @@
 
         .image-content {
             position: relative;
-            max-width: 100%;
-            max-height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .image-content img {
             max-width: 100vw;
             max-height: 100vh;
-            object-fit: contain;
             display: block;
         }
 
-        /* --- الشاشات --- */
-        #startScreen, #chooseModeScreen { display: none; }
-        #startScreen { display: flex; }
+        /* المناطق الشفافة للضغط */
+        .hotspot { position: absolute; cursor: pointer; z-index: 110; }
+        .start-btn { bottom: 10%; width: 30%; height: 15%; }
+        .tak-btn { bottom: 10%; left: 5%; width: 40%; height: 20%; }
+        .jeeb-btn { bottom: 10%; right: 5%; width: 40%; height: 20%; }
 
-        .hotspot { position: absolute; cursor: pointer; }
-        .start-btn { bottom: 8%; left: 50%; transform: translateX(-50%); width: 25%; height: 15%; }
-        .tak-btn { bottom: 10%; left: 10%; width: 30%; height: 12%; }
-        .jeeb-btn { bottom: 10%; right: 10%; width: 30%; height: 12%; }
-
-        /* --- واجهة اللعبة الحية --- */
+        /* واجهة اللعبة */
         #gameScreen {
             display: none;
             position: relative;
@@ -60,71 +57,69 @@
         .game-wrapper {
             position: relative;
             display: inline-block;
+            margin-top: 50px;
         }
 
-        .game-wrapper img {
+        #bgClose {
             max-width: 100vw;
-            max-height: 100vh;
-            display: block;
+            max-height: 80vh;
+            border: 2px solid #333;
         }
 
-        /* حاوية لكل يد */
         .hand-container {
             position: absolute;
-            width: 12%; /* عرض منطقة اليد تقريباً */
-            height: 20%; /* طول منطقة اليد تقريباً */
+            width: 15%; /* حجم اليد تقريباً */
+            height: 25%;
             cursor: pointer;
-            overflow: hidden;
+            z-index: 5;
+            background: rgba(255, 255, 255, 0.05); /* إطار خفيف جداً لرؤية المنطقة */
         }
 
-        /* الطبقة التي تظهر عند الفتح (صورة open.jpg) */
         .hand-open-view {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('open.jpg');
-            background-size: 833% 500%; /* تعويض لتكبير الصورة الأصلية داخل المربع الصغير */
-            display: none; /* مخفية بالبداية */
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('open.jpg'); /* تأكد من الاسم والامتداد */
+            background-size: 500% 200%; /* توزيع الصورة المفتوحة */
+            display: none;
+            z-index: 6;
         }
 
-        /* أيقونة المحيبس أو الرموز */
         .hand-overlay {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2rem;
+            font-size: 2.5rem;
             z-index: 10;
+            pointer-events: none;
         }
 
         .game-info {
             position: absolute;
-            top: 2%;
+            top: 10px;
             width: 100%;
-            z-index: 50;
-            pointer-events: none;
+            z-index: 100;
         }
 
         .status-badge {
-            background: rgba(0,0,0,0.7);
-            padding: 10px 20px;
-            border-radius: 50px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 20px;
+            border-radius: 20px;
             border: 1px solid #f1c40f;
             display: inline-block;
+            font-size: 1.1rem;
         }
 
         .restart-btn {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            padding: 10px;
+            padding: 10px 20px;
             background: #e67e22;
-            border: none;
             color: white;
+            border: none;
             border-radius: 5px;
             cursor: pointer;
+            z-index: 110;
         }
     </style>
 </head>
@@ -132,14 +127,14 @@
 
     <div id="startScreen" class="fullscreen-container">
         <div class="image-content">
-            <img src="start.png">
+            <img src="start.png" onerror="this.src='https://via.placeholder.com/800x600?text=Start+Image+Not+Found'">
             <div class="hotspot start-btn" onclick="showChoice()"></div>
         </div>
     </div>
 
-    <div id="chooseModeScreen" class="fullscreen-container">
+    <div id="chooseModeScreen" class="fullscreen-container" style="display:none;">
         <div class="image-content">
-            <img src="choose.png">
+            <img src="choose.jpg" onerror="this.src='https://via.placeholder.com/800x600?text=Choose+Image+Not+Found'">
             <div class="hotspot tak-btn" onclick="startGame('tak')"></div>
             <div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div>
         </div>
@@ -153,7 +148,7 @@
         </div>
 
         <div class="game-wrapper" id="gameArea">
-            <img src="close.jpg" id="bgClose">
+            <img src="close.jpg" id="bgClose" onerror="this.alt='خطأ: لم يتم العثور على صورة close.jpg'">
             </div>
 
         <button class="restart-btn" onclick="location.reload()">العودة للقائمة</button>
@@ -165,10 +160,10 @@
         let gameMode = 'tak';
         let remainingTak = 8;
 
-        // مصفوفة لتحديد أماكن الأيادي (تحتاج ضبط بسيط حسب دقة الشاشة)
+        // إحداثيات الأيادي (ضبطتها لتناسب صفين)
         const coords = [
-            {t: '32%', l: '12%'}, {t: '32%', l: '30%'}, {t: '32%', l: '48%'}, {t: '32%', l: '66%'}, {t: '32%', l: '84%'},
-            {t: '55%', l: '12%'}, {t: '55%', l: '30%'}, {t: '55%', l: '48%'}, {t: '55%', l: '66%'}, {t: '55%', l: '84%'}
+            {t: '25%', l: '10%'}, {t: '25%', l: '28%'}, {t: '25%', l: '46%'}, {t: '25%', l: '64%'}, {t: '25%', l: '82%'},
+            {t: '55%', l: '10%'}, {t: '55%', l: '28%'}, {t: '55%', l: '46%'}, {t: '55%', l: '64%'}, {t: '55%', l: '82%'}
         ];
 
         function showChoice() {
@@ -193,10 +188,9 @@
                 container.style.top = pos.t;
                 container.style.left = pos.l;
                 
-                // إنشاء طبقة "اليد المفتوحة" التي ستظهر لاحقاً
                 const openView = document.createElement('div');
                 openView.className = 'hand-open-view';
-                // ضبط خلفية الصورة لتناسب مكان اليد
+                // حساب مكان اليد في الصورة المفتوحة
                 openView.style.backgroundPosition = `${(i % 5) * 25}% ${(i < 5 ? 0 : 100)}%`;
                 
                 const overlay = document.createElement('div');
@@ -204,17 +198,15 @@
 
                 container.appendChild(openView);
                 container.appendChild(overlay);
-                
                 container.onclick = () => play(i, openView, overlay);
                 area.appendChild(container);
             });
-            updateText();
         }
 
         function play(i, view, txt) {
             if (isGameOver || view.style.display === 'block') return;
 
-            view.style.display = 'block'; // فتح اليد (إظهار جزء من open.jpg)
+            view.style.display = 'block';
 
             if (gameMode === 'jeeb') {
                 if (i === ringIndex) {
@@ -232,11 +224,11 @@
                     revealAll();
                 } else {
                     remainingTak--;
-                    if (remainingTak === 0) {
+                    if (remainingTak <= 2) { // تحويل للجيب عند بقاء 2
                         gameMode = 'jeeb';
-                        msg("عفية! هسه اطلب المحيبس من الباقيات", "#f1c40f");
+                        msg("بقت بس ثنين! هسه اطلب الجيب", "#f1c40f");
                     } else {
-                        msg(`فارغة! باقي لك ${remainingTak} طكات`, "#fff");
+                        msg(`فارغة! باقي لك ${remainingTak - 2} طكات`, "#fff");
                     }
                 }
             }
@@ -246,10 +238,6 @@
             const el = document.getElementById('statusMsg');
             el.innerText = m;
             el.style.color = c;
-            updateText();
-        }
-
-        function updateText() {
             document.getElementById('modeLabel').innerText = (gameMode === 'tak' ? "وضع الطك" : "وضع الجيب");
         }
 
