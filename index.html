@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - ضبط المربعات</title>
+    <title>لعبة المحيبس - توزيع الأيادي</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -28,10 +28,9 @@
 
         #startScreen { display: flex; }
 
-        /* حاوية اللعب: تأخذ حجم الصورة وتتمركز */
         .img-container {
             position: relative;
-            display: inline-block; /* تأخذ حجم محتواها */
+            display: inline-block;
             max-width: 100%;
             max-height: 100%;
         }
@@ -45,7 +44,7 @@
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         
-        /* أزرار الواجهات (بالنسبة المئوية للحاوية) */
+        /* أزرار الواجهات */
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
         .jeeb-btn { bottom: 10%; right: 8%; width: 35%; height: 15%; }
@@ -59,22 +58,23 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق الأيادي (الضبط الذهبي) --- */
+        /* --- تنسيق المربعات وتكرار صورة open1 --- */
         .hand-target {
             position: absolute;
-            width: 8.8%; /* عرض المربع فوق اليد */
-            height: 22%; /* طول المربع فوق اليد */
-            top: 45.5%;  /* ارتفاع السطر عن أعلى الصورة */
+            width: 8.8%; /* عرض المربع */
+            height: 22%; /* طول المربع */
+            top: 45.5%;  /* مستوى الأيادي في الصورة */
             cursor: pointer;
             z-index: 120;
-            /* background: rgba(255, 0, 0, 0.3); /* امسح هذا التعليق إذا تريد تشوف المربعات وتعدل مكانها */
+            overflow: hidden; /* لإخفاء باقي أجزاء الصورة الكبيرة */
         }
 
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('open1.jpg');
-            background-size: 1136% 100%; /* تقسيم 10 أيادي مع فواصل */
+            /* السر هنا: تكبير الصورة لـ 11 ضعفاً لتغطية الـ 10 أيادي مع الفراغات */
+            background-size: 1130% 100%; 
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
@@ -128,7 +128,7 @@
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         
-        // إحداثيات مدروسة للأيادي (ضبطتها لتقعد فوق الأيادي بصورة close.jpg)
+        // إحداثيات مدروسة لتقعد المربعات فوق الأيادي بالضبط
         const coords = [
             {l: '4%'}, {l: '13.3%'}, {l: '22.8%'}, {l: '32.2%'}, {l: '41.6%'},
             {l: '51.3%'}, {l: '60.7%'}, {l: '70.2%'}, {l: '79.6%'}, {l: '89%'}
@@ -162,7 +162,7 @@
             
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الفارغات" : "وضع الجيب: اطلب البات");
+            updateStatus(gameMode === 'tak' ? "وضع الطك: استبعد الأيادي" : "وضع الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -171,7 +171,9 @@
                 
                 const open = document.createElement('div');
                 open.className = 'open-view';
-                // حساب دقيق جداً لمكان اليد المفتوحة من open1.jpg
+                
+                // هنا يتم تكرار وتوزيع الصورة:
+                // كل يد تأخذ إزاحة مختلفة (Offset) لتظهر الجزء المناسب من open1.jpg
                 open.style.backgroundPosition = `${i * 11.11}% 0%`;
                 
                 const overlay = document.createElement('div');
@@ -192,7 +194,7 @@
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
                         else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! هسه اطلب"); }
+                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت بس ثنين! اطلب"); }
                             else { updateStatus(`باقي ${takTries} طكات`); }
                         }
                     }
