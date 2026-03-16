@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - نسخة الإخفاء الذكي</title>
+    <title>لعبة المحيبس - ضبط الإحداثيات</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -55,7 +55,6 @@
             z-index: 250; cursor: pointer;
         }
 
-        /* --- تنسيق اليد المفتوحة ورقعة الإخفاء --- */
         .hand-target {
             position: absolute;
             width: 8.8%; 
@@ -74,12 +73,7 @@
             background-repeat: no-repeat;
             display: none;
             z-index: 121;
-            
-            /* السحر هنا: لون خلفية يطابق أرضية الغرفة ليغطي اليد المغلقة */
-            /* إذا كان اللون فاتحاً جداً أو غامقاً، غير الكود أدناه (اللون السداسي) */
             background-color: #120e0a; 
-            
-            /* تمويه الحواف لكي تندمج الرقعة مع الصورة الأصلية */
             box-shadow: 0 0 15px 5px #120e0a;
             border-radius: 10px;
         }
@@ -112,7 +106,12 @@
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        const coords = [{l:'4%'}, {l:'13.3%'}, {l:'22.8%'}, {l:'32.2%'}, {l:'41.6%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
+        
+        // تم تحديث إحداثيات أول 5 مربعات لتزحف لليسار قليلاً
+        const coords = [
+            {l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, // المربعات 1-5 (دنيناها يسار)
+            {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}   // المربعات 6-10 (بقيت ثابتة)
+        ];
 
         function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
         function startGame(m) { gameMode = m; hideAll(); document.getElementById('gameScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'block'; initLevel(); }
@@ -139,10 +138,9 @@
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
                     open.style.display = 'block';
-
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! بطل 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! طاح المحيبس 😢"); }
+                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
+                        else { overlay.innerText = '❌'; updateStatus("خسرت! 😢"); }
                         endGame();
                     } else {
                         if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
