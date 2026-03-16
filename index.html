@@ -10,22 +10,24 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
 
-    <title>لعبة المحيبس العراقية</title>
+    <title>لعبة المحيبس - ملء الشاشة</title>
     <style>
-        /* تصغير الفراغات وإلغاء التحديد الأزرق عند الضغط */
+        /* إلغاء الفراغات نهائياً */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
+        @viewport { viewport-fit: cover; }
+
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background-color: #000;
             margin: 0; padding: 0;
             overflow: hidden;
-            /* استخدام dvh لضمان ملء الشاشة بالكامل دون فراغات */
+            /* استخدام وحدات القياس الديناميكية لملء الشاشة */
             width: 100dvw; height: 100dvh;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* تدوير الشاشة تلقائياً إذا كان الموبايل بوضع عمودي */
+        /* تدوير الشاشة في وضع البورتريه لملء الشاشة بالعرض */
         @media screen and (orientation: portrait) {
             #mainWrapper {
                 transform: rotate(90deg);
@@ -40,6 +42,7 @@
         #mainWrapper {
             width: 100%; height: 100%;
             position: relative;
+            background: #000;
         }
 
         .screen {
@@ -61,12 +64,14 @@
 
         .img-container img {
             width: 100%; height: 100%;
-            /* إجبار الصورة على مط نفسها لملء كامل الشاشة */
+            /* التمدد الكامل للصورة لتغطية الشاشة */
             object-fit: fill; 
             display: block;
+            position: absolute;
+            top: 0; left: 0;
         }
 
-        /* قائمة التنقل العلوية */
+        /* أزرار التنقل مع مراعاة المناطق الآمنة */
         .nav-menu {
             position: absolute;
             top: env(safe-area-inset-top, 15px);
@@ -84,7 +89,7 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* إحداثيات الأيادي (المربعات الشفافة) */
+        /* إحداثيات الأيادي */
         .hand-target {
             position: absolute;
             width: 8.8%; height: 22%;
@@ -92,7 +97,6 @@
             z-index: 120;
         }
 
-        /* اليد المفتوحة مع خلفية الرقعة لإخفاء اليد المغلفة */
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -100,17 +104,15 @@
             background-size: 100% 100%;
             display: none;
             z-index: 121;
-            /* لون خلفية يطابق أرضية الصورة لإخفاء ما تحتها */
             background-color: #120e0a;
             box-shadow: 0 0 15px 8px #120e0a;
-            border-radius: 5px;
         }
 
         .emoji-overlay {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             z-index: 130;
             pointer-events: none;
         }
@@ -123,11 +125,10 @@
             background: rgba(0,0,0,0.8);
             color: #f1c40f; padding: 8px 30px;
             border-radius: 50px; border: 2px solid #f1c40f;
-            z-index: 200; font-size: 1.1rem; font-weight: bold;
+            z-index: 200; font-size: 1rem; font-weight: bold;
             white-space: nowrap;
         }
 
-        /* مناطق الضغط على أزرار الصور الأصلية */
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
@@ -174,7 +175,6 @@
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        // إحداثيات الأيادي المضبوطة (أول 5 مدنية لليسار)
         const coords = [
             {l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, 
             {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}
@@ -201,7 +201,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟ اطلب البات");
+            updateStatus(gameMode === 'tak' ? "نمط الطك: استبعد 8" : "نمط الجيب: وين المحيبس؟");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -225,9 +225,8 @@
                         }
                         endGame();
                     } else {
-                        // نمط الطك
                         if (i === ringPos) { 
-                            overlay.innerText = '💍'; updateStatus("بات خسرت! طكيت المحيبس 😢"); playSfx('soundFailBreak'); 
+                            overlay.innerText = '💍'; updateStatus("خسرت! طكيت المحيبس 😢"); playSfx('soundFailBreak'); 
                             endGame(); 
                         } else {
                             takTries--;
@@ -244,7 +243,6 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        
         function endGame() { 
             isOver = true; 
             const views = document.querySelectorAll('.open-view'); 
@@ -253,10 +251,9 @@
             overlays[ringPos].innerText = '💍'; 
         }
 
-        // تسجيل الـ Service Worker للعمل كـ تطبيق
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
+                navigator.serviceWorker.register('./sw.js').catch(e => console.log(e));
             });
         }
     </script>
