@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>لعبة المحيبس - نسخة الموبايل</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <title>لعبة المحيبس - النسخة النهائية</title>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
@@ -16,13 +23,13 @@
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* التعديل 2: خدعة التدوير التلقائي للموبايل */
+        /* خدعة التدوير التلقائي للموبايل في الوضع العمودي */
         @media screen and (orientation: portrait) {
             #mainWrapper {
                 transform: rotate(90deg);
                 transform-origin: center;
-                width: 100vh; /* العرض يصبح هو طول الشاشة */
-                height: 100vw; /* الطول يصبح هو عرض الشاشة */
+                width: 100vh;
+                height: 100vw;
                 position: absolute;
             }
         }
@@ -47,30 +54,29 @@
             width: 100%; height: 100%;
         }
 
-        /* التعديل 3: إجبار الصورة على ملء الشاشة (Cover) */
         .img-container img {
             width: 100%;
             height: 100%;
-            object-fit: fill; /* لضمان ملء المربع تماماً على الموبايل */
+            object-fit: fill; 
             display: block;
         }
 
         .nav-menu {
             position: absolute;
-            top: 10px; left: 10px;
+            top: 15px; left: 15px;
             display: flex; gap: 8px;
             z-index: 250;
         }
 
         .nav-btn {
-            padding: 8px 15px;
-            background: rgba(211, 84, 0, 0.8);
+            padding: 10px 18px;
+            background: rgba(211, 84, 0, 0.9);
             color: white; border: 1px solid #f1c40f;
-            border-radius: 5px; font-size: 0.7rem;
-            cursor: pointer;
+            border-radius: 8px; font-size: 0.8rem;
+            cursor: pointer; font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        /* إحداثيات الأيادي (تبقى نسبية وتعمل مع الملء الكامل) */
         .hand-target {
             position: absolute;
             width: 8.8%; height: 22%;
@@ -100,10 +106,10 @@
         .status-badge {
             position: absolute; top: 15px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            color: #f1c40f; padding: 5px 20px;
-            border-radius: 20px; border: 1px solid #f1c40f;
-            z-index: 200; font-size: 0.9rem;
+            background: rgba(0,0,0,0.85);
+            color: #f1c40f; padding: 8px 25px;
+            border-radius: 50px; border: 1.5px solid #f1c40f;
+            z-index: 200; font-size: 1rem; font-weight: bold;
         }
 
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
@@ -123,7 +129,7 @@
         <audio id="soundJibBat" src="jib_albat.mp3"></audio>
 
         <div id="navMenu" class="nav-menu" style="display:none;">
-            <button class="nav-btn" onclick="showChoiceScreen()">النمط</button>
+            <button class="nav-btn" onclick="showChoiceScreen()">تغيير النمط</button>
             <button class="nav-btn" onclick="backToHome()">الرئيسية</button>
         </div>
 
@@ -152,7 +158,6 @@
     </div>
 
     <script>
-        // الكود البرمجي (JS) يبقى كما هو مع التأكد من استدعاء الدوال بشكل صحيح
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
         const coords = [{l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
 
@@ -179,7 +184,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد 8 أيادي" : "وين المحيبس؟");
+            updateStatus(gameMode === 'tak' ? "نمط الطك: استبعد الأيادي" : "نمط الجيب: وين المحيبس؟");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -213,6 +218,17 @@
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
         function endGame() { isOver = true; const views = document.querySelectorAll('.open-view'); const overlays = document.querySelectorAll('.emoji-overlay'); views[ringPos].style.display = 'block'; overlays[ringPos].innerText = '💍'; }
+
+        // --- إضافة كود الـ PWA المهم جداً ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(reg => {
+                    console.log('Service Worker Registered!', reg);
+                }).catch(err => {
+                    console.log('Registration failed:', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
