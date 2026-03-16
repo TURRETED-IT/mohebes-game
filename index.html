@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - النسخة الموسيقية</title>
+    <title>لعبة المحيبس العراقية</title>
     <style>
         * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #000;
             margin: 0; padding: 0;
             overflow: hidden;
@@ -49,10 +49,11 @@
 
         .choice-back-btn {
             position: absolute; top: 15px; right: 15px;
-            padding: 10px 20px; background: #e67e22;
+            padding: 10px 25px; background: #d35400;
             color: white; border: 2px solid #f1c40f;
-            border-radius: 10px; font-weight: bold;
+            border-radius: 12px; font-weight: bold;
             z-index: 250; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .hand-target {
@@ -71,7 +72,7 @@
             display: none;
             z-index: 121;
             background-color: #120e0a; 
-            box-shadow: 0 0 15px 5px #120e0a;
+            box-shadow: 0 0 20px 8px #120e0a;
             border-radius: 10px;
         }
 
@@ -79,30 +80,49 @@
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             z-index: 130;
             pointer-events: none;
         }
 
         .status-badge {
-            position: absolute; top: 10px; left: 50%;
+            position: absolute; top: 20px; left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.8);
-            padding: 8px 25px; border-radius: 50px;
+            background: linear-gradient(45deg, #2c3e50, #000);
+            color: #f1c40f;
+            padding: 12px 35px; border-radius: 50px;
             border: 2px solid #f1c40f; z-index: 200;
+            font-size: 1.2rem; font-weight: bold;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
         }
     </style>
 </head>
 <body>
 
-    <audio id="bgMusic" src="bg_music.mp3" loop></audio> <audio id="soundTakSuccess" src="tak_success.mp3"></audio>
+    <audio id="mainTheme" src="main_theme.mp3" loop></audio> <audio id="soundTakSuccess" src="tak_success.mp3"></audio>
     <audio id="soundFailBreak" src="fail_break.mp3"></audio>
     <audio id="soundWinApplause" src="win_applause.mp3"></audio>
-    <audio id="soundJibBat" src="jib_albat.mp3"></audio> <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
+    <audio id="soundJibBat" src="jib_albat.mp3"></audio>
+
+    <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">تغيير وضع اللعب</div>
 
     <div id="startScreen" class="screen"><div class="img-container"><img src="start.jpg"><div class="hotspot start-btn" onclick="handleStart()"></div></div></div>
-    <div id="chooseScreen" class="screen"><div class="img-container"><img src="choose.jpg"><div class="hotspot tak-btn" onclick="startGame('tak')"></div><div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div></div></div>
-    <div id="gameScreen" class="screen"><div class="status-badge" id="statusText">جاهز؟</div><div class="img-container" id="gameArea"><img src="close.jpg"><div class="hotspot retry-btn" onclick="initLevel()"></div></div></div>
+    
+    <div id="chooseScreen" class="screen">
+        <div class="img-container">
+            <img src="choose.jpg">
+            <div class="hotspot tak-btn" onclick="startGame('tak')"></div>
+            <div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div>
+        </div>
+    </div>
+
+    <div id="gameScreen" class="screen">
+        <div class="status-badge" id="statusText">محيبس العراق - جاهز؟</div>
+        <div class="img-container" id="gameArea">
+            <img src="close.jpg">
+            <div class="hotspot retry-btn" onclick="initLevel()"></div>
+        </div>
+    </div>
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
@@ -112,18 +132,24 @@
             const sound = document.getElementById(id);
             if(sound) {
                 sound.currentTime = 0;
-                sound.play().catch(e => console.log("الصوت يحتاج تفاعل"));
+                sound.play().catch(e => console.log("تفاعل مطلوب"));
             }
         }
 
-        // تشغيل موسيقى الخلفية بمجرد أول ضغطة
         function handleStart() {
-            document.getElementById('bgMusic').play().catch(e => console.log("لا يمكن تشغيل الموسيقى تلقائياً"));
+            document.getElementById('mainTheme').play().catch(e => console.log("الموسيقى بدأت"));
             showChoiceScreen();
         }
 
         function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
-        function startGame(m) { gameMode = m; hideAll(); document.getElementById('gameScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'block'; initLevel(); }
+        
+        function startGame(m) { 
+            gameMode = m; hideAll(); 
+            document.getElementById('gameScreen').style.display = 'flex'; 
+            document.getElementById('btnBackToChoice').style.display = 'block'; 
+            initLevel(); 
+        }
+
         function goBackToChoice() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'none'; }
         function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); }
 
@@ -132,7 +158,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟");
+            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟ اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -151,8 +177,8 @@
                     if (gameMode === 'jeeb') {
                         if (i === ringPos) { 
                             overlay.innerText = '💍'; 
-                            updateStatus("بطل! 🎉"); 
-                            playSfx('soundWinApplause'); 
+                            updateStatus("بطل! فزت 🎉"); 
+                            playSfx('soundWinApplause'); // صوت الفوز فقط عند الفوز الحقيقي
                         } else { 
                             overlay.innerText = '❌'; 
                             updateStatus("بات خسرت! 😢"); 
@@ -160,9 +186,10 @@
                         }
                         endGame();
                     } else {
+                        // وضع الطك
                         if (i === ringPos) { 
                             overlay.innerText = '💍'; 
-                            updateStatus("بات خسرت! 😢"); 
+                            updateStatus("بات خسرت! طكيت المحيبس 😢"); 
                             playSfx('soundFailBreak'); 
                             endGame(); 
                         } else {
@@ -170,9 +197,9 @@
                             if (takTries === 0) { 
                                 gameMode = 'jeeb'; 
                                 updateStatus("بقت ثنين! جيب البات جيبة"); 
-                                playSfx('soundJibBat'); // الزناد المطلوب عند بقاء يدين
+                                playSfx('soundJibBat'); 
                             } else { 
-                                updateStatus(`باقي ${takTries} طكات`); 
+                                updateStatus(`طكة صحيحة! باقي ${takTries}`); 
                                 playSfx('soundTakSuccess'); 
                             }
                         }
@@ -183,7 +210,14 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        function endGame() { isOver = true; const views = document.querySelectorAll('.open-view'); const overlays = document.querySelectorAll('.emoji-overlay'); views[ringPos].style.display = 'block'; overlays[ringPos].innerText = '💍'; }
+        
+        function endGame() { 
+            isOver = true; 
+            const views = document.querySelectorAll('.open-view'); 
+            const overlays = document.querySelectorAll('.emoji-overlay'); 
+            views[ringPos].style.display = 'block'; 
+            overlays[ringPos].innerText = '💍'; 
+        }
     </script>
 </body>
 </html>
