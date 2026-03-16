@@ -10,32 +10,40 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.png">
 
-    <title>لعبة المحيبس - النسخة النهائية</title>
+    <title>لعبة المحيبس العراقية</title>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        /* تصغير الفراغات وإلغاء التحديد الأزرق عند الضغط */
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
             background-color: #000;
             margin: 0; padding: 0;
             overflow: hidden;
-            width: 100vw; height: 100vh;
+            /* استخدام dvh لضمان ملء الشاشة بالكامل دون فراغات */
+            width: 100dvw; height: 100dvh;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* خدعة التدوير التلقائي للموبايل في الوضع العمودي */
+        /* تدوير الشاشة تلقائياً إذا كان الموبايل بوضع عمودي */
         @media screen and (orientation: portrait) {
             #mainWrapper {
                 transform: rotate(90deg);
                 transform-origin: center;
-                width: 100vh;
-                height: 100vw;
+                width: 100dvh !important;
+                height: 100dvw !important;
                 position: absolute;
+                top: 0; left: 0;
             }
         }
 
+        #mainWrapper {
+            width: 100%; height: 100%;
+            position: relative;
+        }
+
         .screen {
-            position: fixed;
+            position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             display: none;
@@ -48,35 +56,35 @@
 
         .img-container {
             position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             width: 100%; height: 100%;
         }
 
         .img-container img {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
+            /* إجبار الصورة على مط نفسها لملء كامل الشاشة */
             object-fit: fill; 
             display: block;
         }
 
+        /* قائمة التنقل العلوية */
         .nav-menu {
             position: absolute;
-            top: 15px; left: 15px;
-            display: flex; gap: 8px;
+            top: env(safe-area-inset-top, 15px);
+            left: 15px;
+            display: flex; gap: 10px;
             z-index: 250;
         }
 
         .nav-btn {
             padding: 10px 18px;
             background: rgba(211, 84, 0, 0.9);
-            color: white; border: 1px solid #f1c40f;
+            color: white; border: 1.5px solid #f1c40f;
             border-radius: 8px; font-size: 0.8rem;
             cursor: pointer; font-weight: bold;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
+        /* إحداثيات الأيادي (المربعات الشفافة) */
         .hand-target {
             position: absolute;
             width: 8.8%; height: 22%;
@@ -84,6 +92,7 @@
             z-index: 120;
         }
 
+        /* اليد المفتوحة مع خلفية الرقعة لإخفاء اليد المغلفة */
         .open-view {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -91,27 +100,34 @@
             background-size: 100% 100%;
             display: none;
             z-index: 121;
+            /* لون خلفية يطابق أرضية الصورة لإخفاء ما تحتها */
             background-color: #120e0a;
-            box-shadow: 0 0 15px #120e0a;
+            box-shadow: 0 0 15px 8px #120e0a;
+            border-radius: 5px;
         }
 
         .emoji-overlay {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 2rem;
+            font-size: 2.2rem;
             z-index: 130;
+            pointer-events: none;
         }
 
         .status-badge {
-            position: absolute; top: 15px; left: 50%;
+            position: absolute; 
+            top: env(safe-area-inset-top, 15px); 
+            left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.85);
-            color: #f1c40f; padding: 8px 25px;
-            border-radius: 50px; border: 1.5px solid #f1c40f;
-            z-index: 200; font-size: 1rem; font-weight: bold;
+            background: rgba(0,0,0,0.8);
+            color: #f1c40f; padding: 8px 30px;
+            border-radius: 50px; border: 2px solid #f1c40f;
+            z-index: 200; font-size: 1.1rem; font-weight: bold;
+            white-space: nowrap;
         }
 
+        /* مناطق الضغط على أزرار الصور الأصلية */
         .hotspot { position: absolute; cursor: pointer; z-index: 150; }
         .start-btn { bottom: 8%; left: 35%; width: 30%; height: 15%; }
         .tak-btn { bottom: 10%; left: 8%; width: 35%; height: 15%; }
@@ -121,8 +137,7 @@
 </head>
 <body>
 
-    <div id="mainWrapper" style="width: 100%; height: 100%;">
-        
+    <div id="mainWrapper">
         <audio id="soundTakSuccess" src="tak_success.mp3"></audio>
         <audio id="soundFailBreak" src="fail_break.mp3"></audio>
         <audio id="soundWinApplause" src="win_applause.mp3"></audio>
@@ -136,7 +151,7 @@
         <div id="startScreen" class="screen">
             <div class="img-container">
                 <img src="start.jpg">
-                <div class="hotspot start-btn" onclick="startGameDirect()"></div>
+                <div class="hotspot start-btn" onclick="showChoiceScreen()"></div>
             </div>
         </div>
         
@@ -149,7 +164,7 @@
         </div>
 
         <div id="gameScreen" class="screen">
-            <div class="status-badge" id="statusText">جاهز؟</div>
+            <div class="status-badge" id="statusText">محيبس العراق - جاهز؟</div>
             <div class="img-container" id="gameArea">
                 <img src="close.jpg">
                 <div class="hotspot retry-btn" onclick="initLevel()"></div>
@@ -159,7 +174,11 @@
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        const coords = [{l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
+        // إحداثيات الأيادي المضبوطة (أول 5 مدنية لليسار)
+        const coords = [
+            {l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, 
+            {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}
+        ];
 
         function playSfx(id) {
             const sound = document.getElementById(id);
@@ -168,7 +187,7 @@
 
         function backToHome() { hideAll(); document.getElementById('startScreen').style.display = 'flex'; document.getElementById('navMenu').style.display = 'none'; }
         function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; document.getElementById('navMenu').style.display = 'none'; }
-        function startGameDirect() { showChoiceScreen(); }
+        function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); }
 
         function startGame(m) { 
             gameMode = m; hideAll(); 
@@ -177,14 +196,12 @@
             initLevel(); 
         }
 
-        function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); }
-
         function initLevel() {
             const area = document.getElementById('gameArea');
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "نمط الطك: استبعد الأيادي" : "نمط الجيب: وين المحيبس؟");
+            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟ اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -199,16 +216,26 @@
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
                     open.style.display = 'block';
+
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بطل! 🎉"); playSfx('soundWinApplause'); }
-                        else { overlay.innerText = '❌'; updateStatus("بات خسرت! 😢"); playSfx('soundFailBreak'); }
+                        if (i === ringPos) { 
+                            overlay.innerText = '💍'; updateStatus("بطل! فزت 🎉"); playSfx('soundWinApplause'); 
+                        } else { 
+                            overlay.innerText = '❌'; updateStatus("بات خسرت! 😢"); playSfx('soundFailBreak'); 
+                        }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات خسرت! 😢"); playSfx('soundFailBreak'); endGame(); }
-                        else {
+                        // نمط الطك
+                        if (i === ringPos) { 
+                            overlay.innerText = '💍'; updateStatus("بات خسرت! طكيت المحيبس 😢"); playSfx('soundFailBreak'); 
+                            endGame(); 
+                        } else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("جيب البات جيبة"); playSfx('soundJibBat'); }
-                            else { updateStatus(`باقي ${takTries} طكات`); playSfx('soundTakSuccess'); }
+                            if (takTries === 0) { 
+                                gameMode = 'jeeb'; updateStatus("بقت ثنين! جيب البات جيبة"); playSfx('soundJibBat'); 
+                            } else { 
+                                updateStatus(`باقي ${takTries} طكات`); playSfx('soundTakSuccess'); 
+                            }
                         }
                     }
                 };
@@ -217,16 +244,19 @@
         }
 
         function updateStatus(m) { document.getElementById('statusText').innerText = m; }
-        function endGame() { isOver = true; const views = document.querySelectorAll('.open-view'); const overlays = document.querySelectorAll('.emoji-overlay'); views[ringPos].style.display = 'block'; overlays[ringPos].innerText = '💍'; }
+        
+        function endGame() { 
+            isOver = true; 
+            const views = document.querySelectorAll('.open-view'); 
+            const overlays = document.querySelectorAll('.emoji-overlay'); 
+            views[ringPos].style.display = 'block'; 
+            overlays[ringPos].innerText = '💍'; 
+        }
 
-        // --- إضافة كود الـ PWA المهم جداً ---
+        // تسجيل الـ Service Worker للعمل كـ تطبيق
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    console.log('Service Worker Registered!', reg);
-                }).catch(err => {
-                    console.log('Registration failed:', err);
-                });
+                navigator.serviceWorker.register('./sw.js').catch(err => console.log(err));
             });
         }
     </script>
