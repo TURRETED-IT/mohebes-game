@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - ضبط الإحداثيات</title>
+    <title>لعبة المحيبس - نسخة الأصوات الاحترافية</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -57,12 +57,9 @@
 
         .hand-target {
             position: absolute;
-            width: 8.8%; 
-            height: 22%; 
-            top: 45.5%;  
-            cursor: pointer;
+            width: 8.8%; height: 22%;
+            top: 45.5%; cursor: pointer;
             z-index: 120;
-            background: transparent;
         }
 
         .open-view {
@@ -98,7 +95,7 @@
 </head>
 <body>
 
-    <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
+    <audio id="soundTakSuccess" src="tak_success.mp3"></audio> <audio id="soundFailBreak" src="fail_break.mp3"></audio>     <audio id="soundWinApplause" src="win_applause.mp3"></audio> <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
 
     <div id="startScreen" class="screen"><div class="img-container"><img src="start.jpg"><div class="hotspot start-btn" onclick="showChoiceScreen()"></div></div></div>
     <div id="chooseScreen" class="screen"><div class="img-container"><img src="choose.jpg"><div class="hotspot tak-btn" onclick="startGame('tak')"></div><div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div></div></div>
@@ -106,12 +103,15 @@
 
     <script>
         let ringPos = 0, isOver = false, gameMode = 'tak', takTries = 8;
-        
-        // تم تحديث إحداثيات أول 5 مربعات لتزحف لليسار قليلاً
-        const coords = [
-            {l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, // المربعات 1-5 (دنيناها يسار)
-            {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}   // المربعات 6-10 (بقيت ثابتة)
-        ];
+        const coords = [{l:'2.5%'}, {l:'11.8%'}, {l:'21.2%'}, {l:'30.6%'}, {l:'40%'}, {l:'51.3%'}, {l:'60.7%'}, {l:'70.2%'}, {l:'79.6%'}, {l:'89%'}];
+
+        function playSfx(id) {
+            const sound = document.getElementById(id);
+            if(sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("تفاعل مع الصفحة لتفعيل الصوت"));
+            }
+        }
 
         function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
         function startGame(m) { gameMode = m; hideAll(); document.getElementById('gameScreen').style.display = 'flex'; document.getElementById('btnBackToChoice').style.display = 'block'; initLevel(); }
@@ -123,7 +123,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟ اطلب");
+            updateStatus(gameMode === 'tak' ? "وضع الطك: باقي 8 طكات" : "وضع الجيب: اطلب البات");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -138,16 +138,35 @@
                 hand.onclick = () => {
                     if (isOver || open.style.display === 'block') return;
                     open.style.display = 'block';
+
                     if (gameMode === 'jeeb') {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("بات! 🎉"); }
-                        else { overlay.innerText = '❌'; updateStatus("خسرت! 😢"); }
+                        if (i === ringPos) { 
+                            overlay.innerText = '💍'; 
+                            updateStatus("بطل! 🎉"); 
+                            playSfx('soundWinApplause'); // فوز بالجيب
+                        } else { 
+                            overlay.innerText = '❌'; 
+                            updateStatus("بات خسرت! 😢"); 
+                            playSfx('soundFailBreak'); // خسارة بالجيب
+                        }
                         endGame();
                     } else {
-                        if (i === ringPos) { overlay.innerText = '💍'; updateStatus("خسرت! طكيت البات 😢"); endGame(); }
-                        else {
+                        // وضع الطك
+                        if (i === ringPos) { 
+                            overlay.innerText = '💍'; 
+                            updateStatus("بات خسرت! طكيت المحيبس 😢"); 
+                            playSfx('soundFailBreak'); // خسارة بالطك
+                            endGame(); 
+                        } else {
                             takTries--;
-                            if (takTries === 0) { gameMode = 'jeeb'; updateStatus("بقت ثنين! هسه اطلب"); }
-                            else { updateStatus(`باقي ${takTries} طكات`); }
+                            if (takTries === 0) { 
+                                gameMode = 'jeeb'; 
+                                updateStatus("بطل! هسه اطلب"); 
+                                playSfx('soundWinApplause'); // نجاح في الطك (تحول للجيب)
+                            } else { 
+                                updateStatus(`باقي ${takTries} طكات`); 
+                                playSfx('soundTakSuccess'); // طكة صحيحة (تلعب وخوش تلعب)
+                            }
                         }
                     }
                 };
