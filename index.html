@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة المحيبس - نسخة الأصوات الاحترافية</title>
+    <title>لعبة المحيبس - النسخة الموسيقية</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -95,9 +95,12 @@
 </head>
 <body>
 
-    <audio id="soundTakSuccess" src="tak_success.mp3"></audio> <audio id="soundFailBreak" src="fail_break.mp3"></audio>     <audio id="soundWinApplause" src="win_applause.mp3"></audio> <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
+    <audio id="bgMusic" src="bg_music.mp3" loop></audio> <audio id="soundTakSuccess" src="tak_success.mp3"></audio>
+    <audio id="soundFailBreak" src="fail_break.mp3"></audio>
+    <audio id="soundWinApplause" src="win_applause.mp3"></audio>
+    <audio id="soundJibBat" src="jib_albat.mp3"></audio> <div id="btnBackToChoice" class="choice-back-btn" style="display:none;" onclick="goBackToChoice()">واجهة الاختيار</div>
 
-    <div id="startScreen" class="screen"><div class="img-container"><img src="start.jpg"><div class="hotspot start-btn" onclick="showChoiceScreen()"></div></div></div>
+    <div id="startScreen" class="screen"><div class="img-container"><img src="start.jpg"><div class="hotspot start-btn" onclick="handleStart()"></div></div></div>
     <div id="chooseScreen" class="screen"><div class="img-container"><img src="choose.jpg"><div class="hotspot tak-btn" onclick="startGame('tak')"></div><div class="hotspot jeeb-btn" onclick="startGame('jeeb')"></div></div></div>
     <div id="gameScreen" class="screen"><div class="status-badge" id="statusText">جاهز؟</div><div class="img-container" id="gameArea"><img src="close.jpg"><div class="hotspot retry-btn" onclick="initLevel()"></div></div></div>
 
@@ -109,8 +112,14 @@
             const sound = document.getElementById(id);
             if(sound) {
                 sound.currentTime = 0;
-                sound.play().catch(e => console.log("تفاعل مع الصفحة لتفعيل الصوت"));
+                sound.play().catch(e => console.log("الصوت يحتاج تفاعل"));
             }
+        }
+
+        // تشغيل موسيقى الخلفية بمجرد أول ضغطة
+        function handleStart() {
+            document.getElementById('bgMusic').play().catch(e => console.log("لا يمكن تشغيل الموسيقى تلقائياً"));
+            showChoiceScreen();
         }
 
         function showChoiceScreen() { hideAll(); document.getElementById('chooseScreen').style.display = 'flex'; }
@@ -123,7 +132,7 @@
             area.querySelectorAll('.hand-target').forEach(el => el.remove());
             ringPos = Math.floor(Math.random() * 10);
             isOver = false; takTries = 8;
-            updateStatus(gameMode === 'tak' ? "وضع الطك: باقي 8 طكات" : "وضع الجيب: اطلب البات");
+            updateStatus(gameMode === 'tak' ? "استبعد الأيادي الفارغة" : "وين المحيبس؟");
 
             coords.forEach((p, i) => {
                 const hand = document.createElement('div');
@@ -143,29 +152,28 @@
                         if (i === ringPos) { 
                             overlay.innerText = '💍'; 
                             updateStatus("بطل! 🎉"); 
-                            playSfx('soundWinApplause'); // فوز بالجيب
+                            playSfx('soundWinApplause'); 
                         } else { 
                             overlay.innerText = '❌'; 
                             updateStatus("بات خسرت! 😢"); 
-                            playSfx('soundFailBreak'); // خسارة بالجيب
+                            playSfx('soundFailBreak'); 
                         }
                         endGame();
                     } else {
-                        // وضع الطك
                         if (i === ringPos) { 
                             overlay.innerText = '💍'; 
-                            updateStatus("بات خسرت! طكيت المحيبس 😢"); 
-                            playSfx('soundFailBreak'); // خسارة بالطك
+                            updateStatus("بات خسرت! 😢"); 
+                            playSfx('soundFailBreak'); 
                             endGame(); 
                         } else {
                             takTries--;
                             if (takTries === 0) { 
                                 gameMode = 'jeeb'; 
-                                updateStatus("بطل! هسه اطلب"); 
-                                playSfx('soundWinApplause'); // نجاح في الطك (تحول للجيب)
+                                updateStatus("بقت ثنين! جيب البات جيبة"); 
+                                playSfx('soundJibBat'); // الزناد المطلوب عند بقاء يدين
                             } else { 
                                 updateStatus(`باقي ${takTries} طكات`); 
-                                playSfx('soundTakSuccess'); // طكة صحيحة (تلعب وخوش تلعب)
+                                playSfx('soundTakSuccess'); 
                             }
                         }
                     }
